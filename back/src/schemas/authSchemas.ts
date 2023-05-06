@@ -26,7 +26,7 @@ export const signUpSchema = joi.object({
     }),
 });
 
-const signInSchema = joi.object({
+export const signInSchema = joi.object({
     email: joi.string().email().required().messages({
         "string.base": "E-mail deve ser um texto.",
         "string.empty": "E-mail não pode ser vazio.",
