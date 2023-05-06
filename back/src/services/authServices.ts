@@ -3,6 +3,7 @@ import { TUser } from "../types/userTypes";
 import { Users } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { Wallet, JsonRpcProvider } from "ethers";
 
 export async function getUserById(userId: number) {
     const user: Users | null = await userRepositories.getUserById(userId);
@@ -90,4 +91,14 @@ async function encryptsPassword(password: string): Promise<string> {
     const encryptedPassword: string = await bcrypt.hash(password, SALT);
 
     return encryptedPassword;
+}
+
+export async function createWallet() {
+    const providerUrl = `${process.env.INFURA_MUMBAI_URL}`;
+    const provider = new JsonRpcProvider(providerUrl);
+    const wallet = Wallet.createRandom().connect(provider);
+    const address = wallet.address;
+    const privateKey = wallet.privateKey;
+
+    return { address, privateKey };
 }
