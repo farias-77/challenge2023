@@ -27,7 +27,7 @@ model Users {
 model Wallets {
   id Int @id @default(autoincrement())
 
-  userId Int
+  userId Int   @unique
   user   Users @relation("walletsRelation", fields: [userId], references: [id])
 
   publicAddress String @unique
