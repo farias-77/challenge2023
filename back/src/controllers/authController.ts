@@ -13,9 +13,9 @@ export async function signUp(req: Request, res: Response) {
 
     userServices.validateConfirmPassword(user.password, confirmPassword);
     await userServices.validateNewEmail(user.email);
-    const createdUser = await userServices.insertUser(user);
+    const { id } = await userServices.insertUser(user);
 
-    //insert wallet creation here
+    await userServices.insertWalletAtDatabase(id);
 
     res.status(201).send("Usuário criado com sucesso!");
 }
