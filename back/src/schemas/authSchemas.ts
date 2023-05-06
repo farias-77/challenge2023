@@ -1,5 +1,7 @@
 import joi from "joi";
 
+const cpfPattern = /^\d{3}.\d{3}.\d{3}-\d{2}$/;
+
 export const signUpSchema = joi.object({
     name: joi.string().min(3).max(30).required().messages({
         "string.base": "Nome deve ser um texto.",
@@ -24,6 +26,14 @@ export const signUpSchema = joi.object({
         "any.only": "Senhas não coincidem.",
         "any.required": "Confirmar senha é obrigatório.",
     }),
+    cpf: joi
+        .string()
+        .regex(cpfPattern)
+        .messages({
+            "string.empty": "Por favor, informe o seu CPF.",
+            "string.pattern.base": "CPF deve seguir o padrão XXX.XXX.XXX-XX.",
+        })
+        .required(),
 });
 
 export const signInSchema = joi.object({
