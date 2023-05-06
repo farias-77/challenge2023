@@ -8,6 +8,7 @@ export async function signUp(req: Request, res: Response) {
         email: req.body.email,
         password: req.body.password,
         name: req.body.name,
+        cpf: req.body.cpf,
     };
     const confirmPassword: string = req.body.confirmPassword;
 
