@@ -116,6 +116,12 @@ function encryptsKey(key: string) {
     return cryptr.encrypt(key);
 }
 
+export function decryptsKey(key: string) {
+    const cryptr = new Cryptr(process.env.CRYPTR_SECRET || "");
+
+    return cryptr.decrypt(key);
+}
+
 async function encryptsPassword(password: string): Promise<string> {
     const SALT: number = 10;
     const encryptedPassword: string = await bcrypt.hash(password, SALT);
