@@ -1,9 +1,12 @@
-import * as userRepositories from "../repositories/userRepository";
 import { TUser } from "../types/userTypes";
 import { Users } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Wallet, JsonRpcProvider } from "ethers";
+import Cryptr from "cryptr";
+
+import * as walletRepositories from "../repositories/walletRepository";
+import * as userRepositories from "../repositories/userRepository";
 
 export async function getUserById(userId: number) {
     const user: Users | null = await userRepositories.getUserById(userId);
@@ -86,19 +89,36 @@ export async function generateToken(email: string): Promise<string> {
     return token;
 }
 
+export async function createWallet() {
+    const providerUrl = `${process.env.INFURA_MUMBAI_URL}`;
+    const provider = new JsonRpcProvider(providerUrl);
+    const wallet = Wallet.createRandom().connect(provider);
+    const publicAddress = wallet.address;
+    const privateKey = wallet.privateKey;
+
+    return { publicAddress, privateKey };
+}
+
+export async function insertWalletAtDatabase(userId: number) {
+    const wallet = await createWallet();
+    const walletInserted = await walletRepositories.insertWallet({
+        publicAddress: wallet.publicAddress,
+        privateKey: encryptsKey(wallet.privateKey),
+        userId,
+    });
+
+    return walletInserted;
+}
+
+function encryptsKey(key: string) {
+    const cryptr = new Cryptr(process.env.CRYPTR_SECRET || "");
+
+    return cryptr.encrypt(key);
+}
+
 async function encryptsPassword(password: string): Promise<string> {
     const SALT: number = 10;
     const encryptedPassword: string = await bcrypt.hash(password, SALT);
 
     return encryptedPassword;
-}
-
-export async function createWallet() {
-    const providerUrl = `${process.env.INFURA_MUMBAI_URL}`;
-    const provider = new JsonRpcProvider(providerUrl);
-    const wallet = Wallet.createRandom().connect(provider);
-    const address = wallet.address;
-    const privateKey = wallet.privateKey;
-
-    return { address, privateKey };
 }
