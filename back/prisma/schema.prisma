@@ -33,6 +33,7 @@ model Wallets {
 
   publicAddress String @unique
   privateKey    String @unique
+  mnemonic      String @unique @default("")
   realBalance   Float  @default(0)
 
   createdAt DateTime @default(now())

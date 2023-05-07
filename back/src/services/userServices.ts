@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import { JsonRpcProvider, Contract } from "ethers";
+import { decryptsKey } from "../services/authServices";
 
 export async function getBtgDolBalance2(publicAddress: string) {
     const provider = process.env.WEB3_PROVIDER || "";
@@ -34,5 +35,56 @@ export async function getBtgDolBalance(
         return (balance / BigInt(10 ** 6)).toString();
     } catch (err) {
         console.log(err);
+    }
+}
+
+export async function interactWithContract(
+    destinationAddress: string,
+    amount: number,
+    originPrivateKey: string
+) {
+    const web3 = new Web3(process.env.WEB3_PROVIDER || "");
+    console.log("key " + decryptsKey(originPrivateKey));
+
+    try {
+        const account = web3.eth.accounts.privateKeyToAccount(
+            decryptsKey(originPrivateKey)
+        );
+        web3.eth.accounts.wallet.add(account);
+
+        const weiAmount = web3.utils.toWei(amount.toString(), "ether");
+        const gasPrice = await web3.eth.getGasPrice();
+        const nonce = await web3.eth.getTransactionCount(account.address);
+
+        const transaction = {
+            to: destinationAddress,
+            value: weiAmount,
+            gas: 21000,
+            gasPrice: gasPrice,
+            nonce: nonce,
+        };
+
+        const signedTransaction = await web3.eth.accounts.signTransaction(
+            transaction,
+            originPrivateKey
+        );
+
+        if (signedTransaction.rawTransaction) {
+            const receipt = await web3.eth.sendSignedTransaction(
+                signedTransaction.rawTransaction
+            );
+
+            console.log(
+                `Transaction successful, tx hash: ${receipt.transactionHash}`
+            );
+        } else {
+            console.error("Raw transaction not available");
+        }
+    } catch (error) {
+        console.log(error);
+        throw {
+            type: "internal server error",
+            message: `Transaction failed: ${error}`,
+        };
     }
 }

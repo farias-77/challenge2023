@@ -13,7 +13,7 @@ export async function getWalletById(id: number) {
     return wallet;
 }
 
-export async function getWalletByAddress(publicAddress: string) {
+export async function getWalletByPublic(publicAddress: string) {
     const wallet = await walletRepository.getWalletByPublic(publicAddress);
 
     if (!wallet) {

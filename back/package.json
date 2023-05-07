@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ethersproject/hdnode": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/random": "^5.7.0",
     "abi-decoder": "^2.4.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",

@@ -14,6 +14,7 @@ export async function signUp(req: Request, res: Response) {
 
     userServices.validateConfirmPassword(user.password, confirmPassword);
     await userServices.validateNewEmail(user.email);
+    await userServices.validateNewCpf(user.cpf);
     const { id } = await userServices.insertUser(user);
 
     await userServices.insertWalletAtDatabase(id);

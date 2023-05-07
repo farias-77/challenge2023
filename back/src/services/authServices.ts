@@ -61,6 +61,19 @@ export async function validateNewEmail(email: string) {
     return true;
 }
 
+export async function validateNewCpf(cpf: string) {
+    const user: Users | null = await userRepositories.getUserByCpf(cpf);
+
+    if (user) {
+        throw {
+            type: "unauthorized",
+            message: "Já existe um usuário com esse cpf",
+        };
+    }
+
+    return true;
+}
+
 export async function insertUser(user: TUser): Promise<Users> {
     const encryptedUser: TUser = {
         ...user,
@@ -95,8 +108,9 @@ export async function createWallet() {
     const wallet = Wallet.createRandom().connect(provider);
     const publicAddress = wallet.address;
     const privateKey = wallet.privateKey;
+    const mnemonic = wallet.mnemonic?.phrase || "";
 
-    return { publicAddress, privateKey };
+    return { publicAddress, privateKey, mnemonic };
 }
 
 export async function insertWalletAtDatabase(userId: number) {
@@ -105,6 +119,7 @@ export async function insertWalletAtDatabase(userId: number) {
         publicAddress: wallet.publicAddress,
         privateKey: encryptsKey(wallet.privateKey),
         userId,
+        mnemonic: encryptsKey(wallet.mnemonic),
     });
 
     return walletInserted;
