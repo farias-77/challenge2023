@@ -17,3 +17,11 @@ export async function getWalletByUserId(
         },
     });
 }
+
+export async function getWalletByPublic(publicAddress: string) {
+    return await prisma.wallets.findFirst({
+        where: {
+            publicAddress,
+        },
+    });
+}
