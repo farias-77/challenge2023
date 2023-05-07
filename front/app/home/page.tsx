@@ -1,11 +1,15 @@
+'use client'
 import Image from 'next/image'
 import { WalletInfo } from './components/WalletInfo'
 import { ActionButton } from './components/ActionButton'
 import { NavButton } from './components/NavButton'
 import { NavBar } from './components/NavBar'
 import { RecentTxItem } from './components/RecentTxItem'
+import { useState } from 'react'
 
 export default function Page() {
+  const [dolar, setDolar] = useState()
+
   return (
     <div className="w-full h-fit flex flex-col p-8 relative">
       <WalletInfo />
