@@ -1,23 +1,8 @@
-import Web3 from "web3";
 import { JsonRpcProvider, Contract } from "ethers";
 import { decryptsKey } from "../services/authServices";
-
-export async function getBtgDolBalance2(publicAddress: string) {
-    const provider = process.env.WEB3_PROVIDER || "";
-    const btgDolContractAddress = process.env.BTGDOL_CONTRACT || "";
-    const jsonInterface: any = process.env.BTGDOL_JSON_INTERFACE || "";
-
-    const web3 = new Web3(provider);
-    const btgDolContract = new web3.eth.Contract(
-        JSON.parse(jsonInterface),
-        btgDolContractAddress
-    );
-
-    const balance = await btgDolContract.methods
-        .balanceOf(publicAddress)
-        .call();
-    return balance / Math.pow(10, 6);
-}
+import jsonAbi from "../utils/btgDolAbi.json";
+import { AbiItem } from "web3-utils";
+import Web3 from "web3";
 
 export async function getBtgDolBalance(
     publicAddress: string,
@@ -44,7 +29,8 @@ export async function interactWithContract(
     originPrivateKey: string
 ) {
     const web3 = new Web3(process.env.WEB3_PROVIDER || "");
-    console.log("key " + decryptsKey(originPrivateKey));
+    const erc20AbiItems: AbiItem[] = jsonAbi as AbiItem[];
+    const contractAddress: string = process.env.BTGDOL_CONTRACT || "";
 
     try {
         const account = web3.eth.accounts.privateKeyToAccount(
@@ -52,21 +38,31 @@ export async function interactWithContract(
         );
         web3.eth.accounts.wallet.add(account);
 
-        const weiAmount = web3.utils.toWei(amount.toString(), "ether");
+        const contract = new web3.eth.Contract(erc20AbiItems, contractAddress);
+
+        const decimals = await contract.methods.decimals().call();
+        const tokenAmount = BigInt(amount * 10 ** decimals);
+
         const gasPrice = await web3.eth.getGasPrice();
         const nonce = await web3.eth.getTransactionCount(account.address);
 
+        const estimatedGas = await contract.methods
+            .transfer(destinationAddress, tokenAmount)
+            .estimateGas({ from: account.address });
+
         const transaction = {
-            to: destinationAddress,
-            value: weiAmount,
-            gas: 21000,
+            to: contractAddress,
+            data: contract.methods
+                .transfer(destinationAddress, tokenAmount)
+                .encodeABI(),
+            gas: estimatedGas, // Add the "gas" field here
             gasPrice: gasPrice,
             nonce: nonce,
         };
 
         const signedTransaction = await web3.eth.accounts.signTransaction(
             transaction,
-            originPrivateKey
+            decryptsKey(originPrivateKey)
         );
 
         if (signedTransaction.rawTransaction) {

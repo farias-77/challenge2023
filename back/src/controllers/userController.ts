@@ -29,15 +29,11 @@ export async function transferTokens(req: Request, res: Response) {
     7;
 
     const originWallet: Wallets = await walletServices.getWalletById(userId);
-    const destinationWallet: Wallets = await walletServices.getWalletByPublic(
-        req.body.publicAddress
-    );
-
     const transferOnChain = await userServices.interactWithContract(
-        destinationWallet.publicAddress,
+        req.body.destinationAddress,
         req.body.amount,
         originWallet.privateKey
     );
-
+    console.log("b");
     res.status(200).send("Transferência realizada com sucesso!");
 }

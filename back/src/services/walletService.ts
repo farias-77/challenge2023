@@ -19,9 +19,9 @@ export async function getWalletByPublic(publicAddress: string) {
     if (!wallet) {
         throw {
             type: "not_found",
-            message: "Wallet not found",
+            message: "Carteira não encontrada",
         };
     }
-
+    console.log(wallet);
     return wallet;
 }
