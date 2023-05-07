@@ -27,7 +27,7 @@ Uma solução integrada com a plataforma da Mynt que promove a dolarização do 
             //
     📂 docs:
     
-    ## 🚀 Tecnologias utilizadas
+## 🚀 Tecnologias utilizadas
 
 To make our idea technically viable, we use:
 
